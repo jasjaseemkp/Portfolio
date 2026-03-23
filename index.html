@@ -19,8 +19,8 @@
 
     :root {
       --bg: #080c14;
-      --surface: #0e1622;
-      --surface2: #141d2e;
+      --surface: rgba(14, 22, 34, 0.6);
+      --surface2: rgba(20, 29, 46, 0.6);
       --border: rgba(99, 179, 237, 0.12);
       --accent: #38bdf8;
       --accent2: #818cf8;
@@ -39,7 +39,11 @@
       font-family: 'DM Sans', sans-serif;
       font-size: 16px;
       line-height: 1.7;
-      overflow-x: hidden
+      overflow-x: hidden;
+      background-image:
+        linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+      background-size: 30px 30px;
     }
 
     ::-webkit-scrollbar {
@@ -159,20 +163,14 @@
       align-items: center;
       padding: 8rem 6% 4rem;
       position: relative;
-      overflow: hidden;
-      background-image:
-        linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
-      background-size: 30px 30px;
     }
 
     .hero-glow {
-      position: absolute;
+      position: fixed;
       border-radius: 50%;
       filter: blur(90px);
-      z-index: 0;
-      opacity: 0.4;
-      animation: floatGlow 8s ease-in-out infinite alternate;
+      z-index: -1;
+      opacity: 0.35;
       pointer-events: none;
     }
 
@@ -180,8 +178,9 @@
       width: 400px;
       height: 400px;
       background: var(--accent);
-      top: -10%;
-      right: 5%;
+      top: 0;
+      left: 0;
+      will-change: transform;
     }
 
     .glow-2 {
@@ -190,6 +189,7 @@
       background: var(--accent2);
       bottom: 5%;
       right: 25%;
+      animation: floatGlow 8s ease-in-out infinite alternate;
       animation-delay: -4s;
     }
 
@@ -555,12 +555,14 @@
 
     .skill-card {
       background: var(--surface);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 1.8rem;
       transition: all 0.3s;
       position: relative;
-      overflow: hidden
+      overflow: hidden;
     }
 
     .skill-card::before {
@@ -638,11 +640,13 @@
     }
 
     .project-card {
-      background: var(--bg);
+      background: var(--surface);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 2rem;
-      transition: all 0.3s
+      transition: all 0.3s;
     }
 
     .project-card:hover {
@@ -757,13 +761,15 @@
 
     .cert-card {
       background: var(--surface2);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.2rem 1.5rem;
       display: flex;
       align-items: center;
       gap: 1rem;
-      transition: all 0.3s
+      transition: all 0.3s;
     }
 
     .cert-card:hover {
@@ -809,7 +815,9 @@
     }
 
     .contact-card {
-      background: var(--bg);
+      background: var(--surface);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1rem 1.6rem;
@@ -819,7 +827,7 @@
       align-items: center;
       gap: 0.8rem;
       transition: all 0.3s;
-      font-size: 0.9rem
+      font-size: 0.9rem;
     }
 
     .contact-card:hover {
@@ -1113,7 +1121,8 @@
           in Cloud Computing and DevOps.</p>
         <p>Currently, I'm actively expanding my toolkit into full-stack web development, building projects with
           <strong>HTML, CSS, JavaScript, PHP, MySQL, and Laravel</strong>. I love combining modern web development with
-          robust AWS deployments.</p>
+          robust AWS deployments.
+        </p>
         <p>Along with my <strong>Advanced Cloud &amp; DevOps Course</strong> from IntelliPaat, I'm documenting my SQL
           and Web Development journeys on GitHub. Based in <strong>Malappuram, Kerala 🇮🇳</strong></p>
         <br>
@@ -1364,6 +1373,51 @@
         spans[2].style.transform = '';
       });
     }
+
+    // Interactive Mouse Glow tracking
+    const glow1 = document.querySelector('.glow-1');
+    let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+    let glowX = mouseX, glowY = mouseY;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    function animateGlow() {
+      // Lerp for smooth delay
+      glowX += (mouseX - glowX) * 0.04;
+      glowY += (mouseY - glowY) * 0.04;
+      if (glow1) {
+        glow1.style.transform = `translate3d(${glowX - 200}px, ${glowY - 200}px, 0)`;
+      }
+      requestAnimationFrame(animateGlow);
+    }
+    animateGlow();
+
+    // 3D Parallax Tilt for Cards
+    const cards = document.querySelectorAll('.skill-card, .project-card, .contact-card, .cert-card');
+    cards.forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        // Calculate tilt
+        const rotateX = ((y - centerY) / centerY) * -8;
+        const rotateY = ((x - centerX) / centerX) * 8;
+
+        card.style.transition = 'none';
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transition = ''; // Restore CSS transitions
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0)';
+      });
+    });
   </script>
 </body>
 
